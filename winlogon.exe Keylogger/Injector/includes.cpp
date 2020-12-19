@@ -83,7 +83,7 @@ DWORD Helper::CreateDllFile(char dllPath[MAX_PATH]) {
 DWORD Helper::FindPID()
 {
 	// Process name to inject (can be change)
-	const TCHAR processName[] = L"winlogon.exe";
+	const TCHAR processName[] = L"notepad.exe";
 
 	// Taking a snapshot of all processes in the system 
 	HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
