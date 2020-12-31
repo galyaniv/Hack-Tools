@@ -4,11 +4,6 @@
 ExitProcess PROTO STDCALL :DWORD
 assume fs:nothing
 
-.data
-
-	ker32 DWORD ?
-	NumberOfExportedFunctions DWORD ?
-
 .code 
 main proc
 	sub esp, 08h
@@ -57,7 +52,7 @@ main proc
 	xor ecx, ecx
 	mov ebx, [ebp - 04h]
 	
-	searchWinExex:
+	searchWinExec:
 		mov edi, [ebp - 10h]; pointer to function names 
 		mov esi, [ebp - 20h]; pointer to winExec
 		cld
