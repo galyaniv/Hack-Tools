@@ -64,7 +64,7 @@ main proc
 
 		inc eax
 		cmp eax, [ebp - 08h]
-		jmp searchWinExex
+		jmp searchWinExec
 
 	runCalcUsingWinExec:
 		mov ecx, eax
